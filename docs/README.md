@@ -1,8 +1,10 @@
 # GDSR
 
-Welcome! If you're wondering what GDSR stands for, it's *Geometry Dash Ship Regression*. Yes, that's what it really is, but what is that, exactly?
+Welcome! If you're wondering what GDSR stands for, it's *Geometry Dash Ship Regression*. Yes, that's what it really is. Basically, just a unique and silly regression algorithm that traces a continuous curve between points in the most unexpected way possible. Say goodbye to linear regression, polynomial regression, RandomForest, XGBoost, and all that *boring stuff*, and say hello to GDSR!
 
 ## Introducing GD
+
+It's a bit relevant for you to know what the inspiration for this project was.
 
 If you don't know what *Geometry Dash* is, it's a rhythm-platforming game made by RobTop Games, where the player moves forward at a constant speed and must avoid deadly obstacles. For the most part, the game features only one input: clicking (on either a mouse or a key). Depending on the "game mode" being played, that single input has a different effect on the player. The following image shows a particularly famous level, titled *Cataclysm*.
 
