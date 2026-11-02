@@ -7,7 +7,7 @@ Welcome! If you're wondering what GDSR stands for, it's *Geometry Dash Ship Regr
 If you don't know what *Geometry Dash* is, it's a rhythm-platforming game made by RobTop Games, where the player moves forward at a constant speed and must avoid deadly obstacles. For the most part, the game features only one input: clicking (on either a mouse or a key). Depending on the "game mode" being played, that single input has a different effect on the player.
 
 <div align="center">
-    <img src="../assets/gd_img.png" alt="SimplePhysJS Showcase" width="600">
+    <img src="../assets/gd_img.png" alt="Image of GD" width="600">
 </div>
 
 The one relevant to this project is the *Ship* game mode, where clicking causes the player to gain upward thrust, and releasing the key causes the ship to fall down.
@@ -216,5 +216,5 @@ We score models based on SSE (Sum of Squared Errors) relative to the training da
 And that's about it. If you took the time to read this entire thing, thanks. This was genuinely a really fun project, and I learned quite a bit. And, well, it was a nice surprise when I saw that the model is actually kind of effective.
 
 <div align="center">
-    <img src="../assets/showcase0.gif" alt="SimplePhysJS Showcase" width="600">
+    <img src="../assets/showcase0.gif" alt="GDSR Showcase" width="600">
 </div>
