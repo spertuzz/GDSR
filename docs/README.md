@@ -10,7 +10,7 @@ If you don't know what *Geometry Dash* is, it's a rhythm-platforming game made b
     <img src="../assets/gd_img.png" alt="Image of GD" width="600">
 </div>
 
-The one relevant to this project is the *Ship* game mode (shown in the image), where clicking causes the player to gain upward thrust, and releasing the key causes the ship to fall down.
+The one relevant to this project is the *ship* game mode (shown in the image), where clicking causes the player to gain upward thrust, and releasing the key causes the ship to fall down.
 
 ## What this actually is
 
