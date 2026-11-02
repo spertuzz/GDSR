@@ -102,14 +102,15 @@ class GD_ship_regressor:
       raise ValueError("Input must be inside the model's margins.")
 
     for i in range(len(x_res)):
+      if i == 0: continue
       # Find range between frames where the value lives
       if input <= x_res[i]:
         if i == len(x_res) - 1:
           return y_res[-1]  # Send last value if it lands on the final frame
-        x1 = x_res[i]
-        x2 = x_res[i + 1]
-        y1 = y_res[i]
-        y2 = y_res[i + 1]
+        x1 = x_res[i - 1]
+        x2 = x_res[i]
+        y1 = y_res[i - 1]
+        y2 = y_res[i]
         return ((input - x1) / (x2 - x1)) * (y2 - y1) + y1  # Return linearly interpolated value between both closest frames
 
   def fire(self, input, network=None):
