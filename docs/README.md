@@ -4,13 +4,13 @@ Welcome! If you're wondering what GDSR stands for, it's *Geometry Dash Ship Regr
 
 ## Introducing GD
 
-If you don't know what *Geometry Dash* is, it's a rhythm-platforming game made by RobTop Games, where the player moves forward at a constant speed and must avoid deadly obstacles. For the most part, the game features only one input: clicking (on either a mouse or a key). Depending on the "game mode" being played, that single input has a different effect on the player.
+If you don't know what *Geometry Dash* is, it's a rhythm-platforming game made by RobTop Games, where the player moves forward at a constant speed and must avoid deadly obstacles. For the most part, the game features only one input: clicking (on either a mouse or a key). Depending on the "game mode" being played, that single input has a different effect on the player. The following image shows a particularly famous level, titled *Cataclysm*.
 
 <div align="center">
     <img src="../assets/gd_img.png" alt="Image of GD" width="600">
 </div>
 
-The one relevant to this project is the *Ship* game mode, where clicking causes the player to gain upward thrust, and releasing the key causes the ship to fall down.
+The one relevant to this project is the *Ship* game mode (shown in the image), where clicking causes the player to gain upward thrust, and releasing the key causes the ship to fall down.
 
 ## What this actually is
 
