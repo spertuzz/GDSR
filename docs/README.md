@@ -23,7 +23,7 @@ GDSR is a single-variable regression algorithm based on this game mode. It essen
 
 So, it's a silly and overly convoluted approach to achieve something other algorithms can do more efficiently. Neat!
 
-## One caveat
+## One thing
 
 This project was not implemented using `numpy`, `pandas`, or any of those pre-existing structures. Part of my goal with this project was not only to create my own regression algorithm, but also to learn more about neural networks and neuroevolution and to implement all of these concepts from scratch. Thus, running it requires very specific files from this repository and unique variables I'll highlight later.
 
@@ -81,7 +81,7 @@ A certain number of neurons are strung together into a "layer". Each neuron in t
 
 Layers are strung together into a network. The first layer is called the "input layer", which outputs one number for every input you give the network. The neurons in this layer don't really do anything. After the input layer, all those inputs head to the next layer, full of regular neurons. These neurons take those input values and compute their respective outputs. This is called a "hidden layer". Those outputs are then transferred to the next hidden layer, which uses them as its inputs. This is repeated until the final layer is reached, being the output layer, which spits out the final outputs for the network as a whole.
 
-This entire process is called forward propagation, and its final outputs are the result of evaluating the entire neural network. Boom, you know how they work now.
+This entire process is called forward propagation, and its final outputs are the result of evaluating the entire neural network.
 
 One nice thing to notice is the purpose of the activation functions: without them, the entire network becomes a simple linear regression. Boring. The functions are there to give the whole thing some variety.
 
@@ -93,9 +93,9 @@ There are actually lots of types of neuroevolution, but I chose a simple version
 - Setting up a proper feedback loop would be difficult
 - I'll just let the computer figure it out by pure chance
 
-And, really, that's the core idea. My neuroevolution algorithm creates a pool of, let's say, 100 neural networks, and fills them all with completely random weights and biases. Of course, they're all going to be terrible, but when evaluating their performance, some will be a little better than the others. Because, I mean, even if it's hard to teach someone something, sometimes it isn't very hard to determine whether they've done it right. Anyhow, the top performers in that generation of neural networks are then crossed over, and random mutations are added to their offspring, creating a brand-new generation of 100 neural networks. This process is then repeated many, many times. The whole point is that, by working on the algorithms that seem to be succeeding, we'll eventually reach a network that is incredibly successful. The only downside is we'll never know why it's so good at what it does, but who cares, right?
+And, really, that's the core idea. My neuroevolution algorithm creates a pool of, let's say, 100 neural networks, and fills them all with completely random weights and biases. Of course, they're all going to be terrible, but when evaluating their performance, some will be a little better than the others. Because, I mean, even if it's hard to teach someone something, sometimes it isn't very hard to determine whether they've done it right. Anyhow, the top performers in that generation of neural networks are then crossed over, and random mutations are added to their offspring, creating a brand-new generation of 100 neural networks. This process is then repeated many, many times. The whole point is that, by working on the algorithms that seem to be succeeding, we'll eventually reach a network that is incredibly successful. The only downside is we'll never know why it's so good at what it does.
 
-This is almost explicitly what my code does. Like, no joke. Only with many added configurations, like decay rates for mutations and slowly growing probabilities for crossover. Seriously, take a look:
+This is almost explicitly what my code does. Only with many added configurations, like decay rates for mutations and slowly growing probabilities for crossover. Seriously, take a look:
 
 ```python
 # Crossover
@@ -129,6 +129,12 @@ if can_mutate:
           n.b += self.call_rand_b() * mult
 new_gen.append(new_net)
 ```
+
+But then, why do this? It sounds a little lazy after all, given my previous description. That's because it maybe is, but sometimes the easier path is the better one. For other methods like backpropagation, you need to be able to reliably give your model effective feedback so it can correct its weights and biases, but this is not an easy thing to do in many situations.
+
+Consider a problem where feedback isn't immediate, like driving a car. If you make a weird turn at time $t=4s$, that probably won't immediately crash the car on that instant. The model won't get negative feedback from that wrong turn because nothing bad would have happened yet. However, if that mistake caused a crash at $t=5s$, you suddenly need to help the network understand that the mistake had occurred earlier. That isn't what standard backpropagation is designed to do.
+
+That type of learning requires more advanced strategies like Q-learning style networks (adapted for these continuous situations) or deep learning, which are substantially more complex. Neuroevolution offers a much simpler yet still effective way to solve these types of complicated problems without facing the massive design issue of providing accurate reward to the model.
 
 ### Making it play GD
 
@@ -199,17 +205,18 @@ def get_result(self, input, x_res, y_res):
 
   for i in range(len(x_res)):
     # Find range between frames where the value lives
+    if i == 0: continue
     if input <= x_res[i]:
       if i == len(x_res) - 1:
         return y_res[-1]  # Send last value if it lands on the final frame
       x1 = x_res[i]
-      x2 = x_res[i + 1]
+      x2 = x_res[i - 1]
       y1 = y_res[i]
-      y2 = y_res[i + 1]
+      y2 = y_res[i - 1]
       return ((input - x1) / (x2 - x1)) * (y2 - y1) + y1  # Return linearly interpolated value between both closest frames
 ```
 
-We score models based on SSE (Sum of Squared Errors) relative to the training data, and boom! That's the whole model. Simple, right?
+We score models based on SSE (Sum of Squared Errors) for every point in the original training data (comparing the points on the curve with the real ones), and we select the ones with the highest score for crossover and mutation. That's the whole model. Simple, right?
 
 ---
 
