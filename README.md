@@ -62,3 +62,147 @@ GD_model.train(
 ```
 
 Afterwards, all that's left to evaluate it at a certain x value is to run `GD_model.fire(x)`. `GD_model.fire(2)`, for instance, would return the y-coordinate of the point on the regression curve at $x=2$ (a float).
+
+## How does it work?
+
+It's actually not that hard. If you already know how forward propagation in neural networks works, the rest is simple:
+
+### Small overview of forward propagation
+
+A neuron is a little object made of a few numbers and a function. That's it. Most of those numbers are called "weights", denoted by $w_1, w_2, \dots , w_n$, and the last one is called the "bias", denoted by $b$. The function is called an "activation function", typically with a domain across all real numbers, and we'll call it $act(x)$.
+
+Given $n$ inputs $x_1, x_2, \dots , x_n$, a neuron outputs $act(w_1 \cdot x_1 + w_2 \cdot x_2 + \dots + w_n \cdot x_n + b)$. That's it.
+
+A certain number of neurons are strung together into a "layer". Each neuron in the layer receives the same set of inputs, but they won't necessarily output the same things, as their weights and biases may differ. The layer's output is the list of outputs of all its neurons ($o_1, o_2, \dots , o_k$)
+
+Layers are strung together into a network. The first layer is called the "input layer", which outputs one number for every input you give the network. The neurons in this layer don't really do anything. After the input layer, all those inputs head to the next layer, full of regular neurons. These neurons take those input values and compute their respective outputs. This is called a "hidden layer". Those outputs are then transferred to the next hidden layer, which uses them as its inputs. This is repeated until the final layer is reached, being the output layer, which spits out the final outputs for the network as a whole.
+
+This entire process is called forward propagation, and its final outputs are the result of evaluating the entire neural network. Boom, you know how they work now.
+
+One nice thing to notice is the purpose of the activation functions: without them, the entire network becomes a simple linear regression. Boring. The functions are there to give the whole thing some variety.
+
+### Neuroevolution
+
+There are actually lots of types of neuroevolution, but I chose a simple version. The idea behind this approach is quite easy to grasp:
+
+- Training things to do complicated stuff is hard, because even I don't know how to teach someone to do them, let alone a computer
+- Setting up a proper feedback loop would be difficult
+- I'll just let the computer figure it out by pure chance
+
+And, really, that's the core idea. My neuroevolution algorithm creates a pool of, let's say, 100 neural networks, and fills them all with completely random weights and biases. Of course, they're all going to be terrible, but when evaluating their performance, some will be a little better than the others. Because, I mean, even if it's hard to teach someone something, sometimes it isn't very hard to determine whether they've done it right. Anyhow, the top performers in that generation of neural networks are then crossed over, and random mutations are added to their offspring, creating a brand-new generation of 100 neural networks. This process is then repeated many, many times. The whole point is that, by working on the algorithms that seem to be succeeding, we'll eventually reach a network that is incredibly successful. The only downside is we'll never know why it's so good at what it does, but who cares, right?
+
+This is almost explicitly what my code does. Like, no joke. Only with many added configurations, like decay rates for mutations and slowly growing probabilities for crossover. Seriously, take a look:
+
+```python
+# Crossover
+other_net = random.choice(self.candidates)  # Select other network to breed the original with
+layers1 = new_net.layers
+layers2 = other_net.layers
+for j in range(len(layers1)):
+  if not new_net.layers[j].input:
+    l1 = layers1[j]
+    l2 = layers2[j]
+
+    if cross_mode == 'random':
+      for k in range(len(l1.neurons)):
+        n1 = l1.neurons[k]
+        n2 = l2.neurons[k]
+        for l in range(len(n1.w)):
+          alpha = random.random()
+          n1.w[l] = alpha * n1.w[l] + (1 - alpha) * n2.w[l]  # Randomly interpolate between both networks' weights and bias
+        alpha = random.random()
+        n1.b = alpha * n1.b + (1 - alpha) * n2.b
+
+[...]
+
+# Mutation
+if can_mutate:
+  for layer in new_net.layers:
+    if not layer.input:
+      for n in layer.neurons:
+        for j in range(len(n.w)):
+          n.w[j] += self.call_rand() * mult  # Add random variations to weights and bias
+          n.b += self.call_rand_b() * mult
+new_gen.append(new_net)
+```
+
+### Making it play GD
+
+After all that, the only thing left is to make the model play the GD ship simulations. What I did for this was make the neural net gather a bunch of points on the curve it traces when flying, done through a quick simulation like this one:
+
+```python
+def simulate(self, network):
+  x_res = []
+  y_res = []
+
+  # Generate important movement variables
+  length = max(self.x_values) - min(self.x_values)                      # Length of the system in x units
+  height = max(self.y_values) - min(self.y_values) + 2 * self.y_margin  # Length of the system in y units
+  dt = 5 / self.resolution                                              # Time per frame (whole path is taken at 5 seconds)
+  h_speed = self.scroll * length / 5                                    # Horizontal speed
+  g_force = 2 * height * self.grav                                      # Downforce
+  up_force = 2 * height * self.thrust                                   # Upforce
+  end_dist = max(self.x_values)                                         # Final point in the path
+
+  # Create concurrent moving variables
+  y_vel = 0
+  y_pos = (max(self.y_values) + min(self.y_values)) / 2
+  x_pos = min(self.x_values) - length * self.margin
+
+  # Start movement loop
+  while True:
+    # Find the next target obstacle's coordinates to feed into the network
+    next_x = min(self.x_values) - max(abs(min(self.x_values)), abs(max(self.x_values))) * 100
+    next_y = min(self.y_values) - max(abs(min(self.y_values)), abs(max(self.y_values))) * 100
+    for i in range(len(self.x_values)):
+      # Find next target
+      if x_pos < self.x_values[i]:
+        next_x = self.x_values[i]
+        next_y = self.y_values[i]
+        break
+
+    # Fire neural network
+    input_arr = [x_pos, y_pos, y_vel, next_x, next_y]
+    click = network.fire(input_arr)[0] > 0  # Only click if output is positive
+
+    if click:  # Add thrust if the bot clicked
+      y_vel += dt * up_force
+      if y_vel > up_force: y_vel = up_force
+    else:  # Let it fall if it didn't click
+      y_vel -= dt * g_force
+      if y_vel < -g_force: y_vel = -g_force
+
+    # Update movement variables
+    x_pos += h_speed * dt
+    y_pos += y_vel * dt
+
+    # Append result to path
+    x_res.append(x_pos)
+    y_res.append(y_pos)
+
+    if x_pos > end_dist:  # Check if the path is done
+      break
+
+  return (x_res, y_res)  # Return resulting path
+```
+
+Notice that, here, we basically feed the network the information of one frame (its x-position, y-position, y-velocity, and the next target) and make it return a split-second decision (positive = click, negative = don't). This is done for all frames, and we get the points on the curve. For all other points in between the calculated ones, we simply interpolate linearly (at a high resolution, this effect is small):
+
+```python
+def get_result(self, input, x_res, y_res):
+  if input < x_res[0] or input > x_res[-1]:
+    raise ValueError("Input must be inside the model's margins.")
+
+  for i in range(len(x_res)):
+    # Find range between frames where the value lives
+    if input <= x_res[i]:
+      if i == len(x_res) - 1:
+        return y_res[-1]  # Send last value if it lands on the final frame
+      x1 = x_res[i]
+      x2 = x_res[i + 1]
+      y1 = y_res[i]
+      y2 = y_res[i + 1]
+      return ((input - x1) / (x2 - x1)) * (y2 - y1) + y1  # Return linearly interpolated value between both closest frames
+```
+
+We score models based on SSE (Sum of Squared Errors) relative to the training data, and boom! That's the whole model. Simple, right?
