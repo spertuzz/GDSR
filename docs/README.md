@@ -134,7 +134,7 @@ But then, why do this? It sounds a little lazy after all, given my previous desc
 
 Consider a problem where feedback isn't immediate, like driving a car. If you make a weird turn at time $t=4s$, that probably won't immediately crash the car on that instant. The model won't get negative feedback from that wrong turn because nothing bad would have happened yet. However, if that mistake caused a crash at $t=5s$, you suddenly need to help the network understand that the mistake had occurred earlier. That isn't what standard backpropagation is designed to do.
 
-That type of learning requires more advanced strategies like Q-learning style networks (adapted for these continuous situations) or deep learning, which are substantially more complex. Neuroevolution offers a much simpler yet still effective way to solve these types of complicated problems without facing the massive design issue of providing accurate reward to the model.
+That type of learning requires more advanced strategies like Q-learning-style networks (adapted for continuous spaces) or deep learning, which are substantially more complex. Neuroevolution offers a much simpler yet still effective way to solve these types of complicated problems without facing the massive design issue of providing accurate reward to the model.
 
 ### Making it play GD
 
