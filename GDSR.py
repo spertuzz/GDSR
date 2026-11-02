@@ -105,8 +105,6 @@ class GD_ship_regressor:
       if i == 0: continue
       # Find range between frames where the value lives
       if input <= x_res[i]:
-        if i == len(x_res) - 1:
-          return y_res[-1]  # Send last value if it lands on the final frame
         x1 = x_res[i - 1]
         x2 = x_res[i]
         y1 = y_res[i - 1]
