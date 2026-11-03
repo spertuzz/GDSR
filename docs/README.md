@@ -75,9 +75,13 @@ It's actually not that hard. If you already know how forward propagation in neur
 
 ### Small overview of forward propagation
 
-A neuron is a little object made of a few numbers and a function. That's it. Most of those numbers are called "weights", denoted by $w_1, w_2, \dots , w_n$, and the last one is called the "bias", denoted by $b$. The function is called an "activation function", typically with a domain across all real numbers, and we'll call it $act(x)$.
+A neuron is a little object made of a few numbers and a function. That's it. Most of those numbers are called "weights", denoted by $w_1, w_2, \dots , w_n$, and the last one is called the "bias", denoted by $b$. The function is called an "activation function", typically with a domain across all real numbers, and we'll call it $\mathrm{act}(x)$.
 
-Given $n$ inputs $x_1, x_2, \dots , x_n$, a neuron outputs $act(w_1 \cdot x_1 + w_2 \cdot x_2 + \dots + w_n \cdot x_n + b)$. That's it.
+Given $n$ inputs $x_1, x_2, \dots , x_n$, a neuron outputs
+
+$$\mathrm{act}(w_1 \cdot x_1 + w_2 \cdot x_2 + \dots + w_n \cdot x_n + b)$$
+
+That's it.
 
 A certain number of neurons are strung together into a "layer". Each neuron in the layer receives the same set of inputs, but they won't necessarily output the same things, as their weights and biases may differ. The layer's output is the list of outputs of all its neurons ($o_1, o_2, \dots , o_k$)
 
