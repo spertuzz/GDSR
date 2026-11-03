@@ -99,7 +99,7 @@ There are actually lots of types of neuroevolution, but I chose a simple version
 - Setting up a proper feedback loop would be difficult
 - I'll just let the computer figure it out by pure chance
 
-And, really, that's the core idea. My neuroevolution algorithm creates a pool of, let's say, 100 neural networks, and fills them all with completely random weights and biases. Of course, they're all going to be terrible, but when evaluating their performance, some will be a little better than the others. Because, I mean, even if it's hard to teach someone something, sometimes it isn't very hard to determine whether they've done it right. Anyhow, the top performers in that generation of neural networks are then crossed over, and random mutations are added to their offspring, creating a brand-new generation of 100 neural networks. This process is then repeated many, many times. The whole point is that, by working on the algorithms that seem to be succeeding, we'll eventually reach a network that is incredibly successful. The only downside is we'll never know why it's so good at what it does.
+And, really, that's the core idea. My neuroevolution algorithm creates a pool of, let's say, 100 neural networks, and fills them all with completely random weights and biases. Of course, they're all going to be terrible, but when evaluating their performance (by "quizzing" them on a dataset and adding up the error, which can be calculated in many ways), some will be a little better than the others. Anyhow, the top performers in that generation of neural networks are then crossed over, and random mutations are added to their offspring, creating a brand-new generation of 100 neural networks. This process is then repeated many, many times. The whole point is that, by working on the algorithms that seem to be succeeding, we'll eventually reach a network that is incredibly successful. The only downside is we'll never know why it's so good at what it does.
 
 This is almost explicitly what my code does. Only with many added configurations, like decay rates for mutations and slowly growing probabilities for crossover. Seriously, take a look:
 
@@ -220,7 +220,11 @@ def get_result(self, input, x_res, y_res):
       return ((input - x1) / (x2 - x1)) * (y2 - y1) + y1  # Return linearly interpolated value between both closest frames
 ```
 
-We score models based on SSE (Sum of Squared Errors) for every point in the original training data (comparing the points on the curve with the real ones), and we select the ones with the highest score for crossover and mutation. That's the whole model. Simple, right?
+After computing the curve for each network, we score them based on their *Sum of Squared Errors* (SSE) based on the original dataset. In other words, we calculate
+
+$$S = -\sum (y_i - \hat{y}_i)^2$$
+
+as the score for each model, where $y_i$ is a real y value and $\hat{y}_i$ is its corresponding prediction. Here, models with a higher score have a lower error (closer to zero), so we select the models with the highest score for crossover and mutation. After this, we repeat the process until we're satisfied.
 
 ---
 
